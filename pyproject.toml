@@ -5,6 +5,9 @@ description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
     "django==5.2.6",
+    "boto3>=1.40.32",
+    "django-storages>=1.14.6",
+    "python-decouple>=3.8",
 ]
 
 [build-system]

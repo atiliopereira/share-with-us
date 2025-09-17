@@ -180,12 +180,177 @@ Edit `uploads/templates/uploads/upload.html` to customize:
    - Ensure the templates directory structure is correct
    - Verify `APP_DIRS = True` in `TEMPLATES` setting
 
+## AWS EC2 + S3 Deployment
+
+### Prerequisites
+
+1. **AWS S3 Bucket**: Create an S3 bucket for file storage
+2. **AWS IAM User**: Create an IAM user with S3 permissions
+3. **EC2 Instance**: Ubuntu server with Python 3.10+
+
+### IAM Permissions Required
+
+Create an IAM user with the following policy:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::your-bucket-name/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Resource": "arn:aws:s3:::your-bucket-name"
+        }
+    ]
+}
+```
+
+### Server Setup
+
+1. **Install Dependencies on EC2:**
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Python and pip
+sudo apt install python3 python3-pip python3-venv -y
+
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source ~/.bashrc
+
+# Clone repository
+git clone https://github.com/your-repo/share-with-us.git
+cd share-with-us
+```
+
+2. **Environment Configuration:**
+
+Create `.env` file on the server:
+
+```bash
+# Django Configuration
+DEBUG=False
+SECRET_KEY=your-production-secret-key-here
+ALLOWED_HOSTS=localhost,127.0.0.1,ec2-18-221-73-203.us-east-2.compute.amazonaws.com
+
+# AWS S3 Configuration
+USE_S3=True
+AWS_ACCESS_KEY_ID=your-access-key-id
+AWS_SECRET_ACCESS_KEY=your-secret-access-key
+AWS_STORAGE_BUCKET_NAME=your-bucket-name
+AWS_S3_REGION_NAME=us-east-2
+```
+
+3. **Install and Run:**
+
+```bash
+# Install dependencies
+uv add Django==5.2.6 boto3 django-storages python-decouple
+
+# Run migrations
+uv run python manage.py migrate
+
+# Collect static files (if needed)
+uv run python manage.py collectstatic --noinput
+
+# Start server (for production, use gunicorn)
+uv run python manage.py runserver 0.0.0.0:8000
+```
+
+### Production Web Server Setup
+
+For production, install and configure Gunicorn + Nginx:
+
+```bash
+# Install Gunicorn
+uv add gunicorn
+
+# Create systemd service
+sudo tee /etc/systemd/system/fileupload.service > /dev/null <<EOF
+[Unit]
+Description=Django File Upload App
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/share-with-us
+Environment="PATH=/home/ubuntu/share-with-us/.venv/bin"
+ExecStart=/home/ubuntu/share-with-us/.venv/bin/gunicorn --workers 3 --bind 0.0.0.0:8000 fileupload.wsgi:application
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Enable and start service
+sudo systemctl daemon-reload
+sudo systemctl enable fileupload
+sudo systemctl start fileupload
+```
+
+### S3 Bucket Configuration
+
+1. **Create S3 Bucket** with the name specified in your environment variables
+2. **Configure CORS** (if needed for web uploads):
+
+```json
+[
+    {
+        "AllowedHeaders": ["*"],
+        "AllowedMethods": ["GET", "POST", "PUT"],
+        "AllowedOrigins": ["https://ec2-18-221-73-203.us-east-2.compute.amazonaws.com"],
+        "ExposeHeaders": []
+    }
+]
+```
+
+3. **Block Public Access**: Keep enabled for security
+
+### Security Considerations
+
+- Files are stored with private ACL by default
+- Pre-signed URLs are generated for file access with 1-hour expiration
+- CSRF protection is enabled
+- File size limits are enforced (10MB)
+
+### Troubleshooting AWS Deployment
+
+1. **S3 Access Issues**:
+   - Verify IAM user has correct permissions
+   - Check AWS credentials in environment variables
+   - Ensure bucket name and region are correct
+
+2. **File Upload Errors**:
+   - Check Django logs: `sudo journalctl -u fileupload -f`
+   - Verify S3 bucket policy and CORS configuration
+
+3. **Static Files Issues**:
+   - For production, consider separate S3 bucket for static files
+   - Configure `STATIC_ROOT` and run `collectstatic`
+
 ### Development vs Production
 
-This setup is configured for development. For production deployment:
+**Development** (Local):
+- `USE_S3=False` - Files stored locally
+- `DEBUG=True`
+- `ALLOWED_HOSTS=localhost,127.0.0.1`
 
-1. Set `DEBUG = False`
-2. Configure proper `ALLOWED_HOSTS`
-3. Use a production-grade web server (not `runserver`)
-4. Set up proper media file serving (nginx, CDN, etc.)
-5. Configure database settings for production use
+**Production** (EC2 + S3):
+- `USE_S3=True` - Files stored in S3
+- `DEBUG=False`  
+- `ALLOWED_HOSTS=ec2-18-221-73-203.us-east-2.compute.amazonaws.com`
+- Use Gunicorn + Nginx for serving
