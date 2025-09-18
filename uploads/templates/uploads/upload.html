@@ -125,7 +125,28 @@
         .error-list ul {
             padding-left: 20px;
         }
-        
+
+        .gallery-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .gallery-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 30px 20px;
@@ -148,7 +169,7 @@
 <body>
     <div class="container">
         <h1>Compartinos tus fotos y videos</h1>
-        
+
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -180,6 +201,10 @@
             
             <button type="submit" class="submit-btn">Subir archivo</button>
         </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'gallery' %}" class="gallery-btn">Ver galería de fotos y videos</a>
+        </div>
     </div>
 </body>
 </html>

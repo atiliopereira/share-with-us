@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería - Kris & Chilu</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .gallery-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .gallery-item video {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .file-info {
+            padding: 15px;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #333;
+            word-break: break-word;
+            font-size: 14px;
+        }
+
+        .download-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .download-link:hover {
+            color: #764ba2;
+        }
+
+        .empty-gallery {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 60px 0;
+        }
+
+        @media (max-width: 600px) {
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .gallery-item img,
+            .gallery-item video {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Galería de Fotos y Videos</h1>
+            <a href="{% url 'upload_file' %}" class="back-btn">← Subir nuevo archivo</a>
+        </div>
+
+        {% if files %}
+            <div class="gallery-grid">
+                {% for file in files %}
+                    <div class="gallery-item">
+                        {% if file.name|slice:"-4:"|lower == ".jpg" or file.name|slice:"-5:"|lower == ".jpeg" or file.name|slice:"-4:"|lower == ".png" or file.name|slice:"-4:"|lower == ".gif" %}
+                            <img src="{{ file.url }}" alt="{{ file.name }}" loading="lazy">
+                        {% elif file.name|slice:"-4:"|lower == ".mp4" or file.name|slice:"-4:"|lower == ".mov" or file.name|slice:"-5:"|lower == ".webm" %}
+                            <video controls>
+                                <source src="{{ file.url }}" type="video/mp4">
+                                Tu navegador no soporta el elemento video.
+                            </video>
+                        {% else %}
+                            <div style="height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666;">
+                                📄 Archivo
+                            </div>
+                        {% endif %}
+
+                        <div class="file-info">
+                            <div class="file-name">{{ file.name }}</div>
+                            <a href="{{ file.url }}" class="download-link" target="_blank">Ver/Descargar</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-gallery">
+                <p>No hay archivos subidos todavía.</p>
+                <p style="margin-top: 10px; font-size: 1rem;">¡Sé el primero en compartir una foto o video!</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
