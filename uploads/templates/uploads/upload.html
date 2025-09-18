@@ -13,14 +13,31 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #aec6db 100%);
             min-height: 100vh;
+            padding: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
         }
-        
+
+        .page-container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+
         .container {
             background: white;
             border-radius: 12px;
@@ -28,6 +45,7 @@
             padding: 40px;
             width: 100%;
             max-width: 500px;
+            margin: 0 auto;
         }
         
         h1 {
@@ -73,7 +91,7 @@
         }
         
         .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #aec6db 100%);
             color: white;
             border: none;
             padding: 15px 30px;
@@ -127,7 +145,7 @@
         }
 
         .gallery-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #aec6db 100%);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -152,12 +170,16 @@
                 padding: 30px 20px;
                 margin: 10px;
             }
-            
+
+            .page-title {
+                font-size: 2rem;
+            }
+
             h1 {
                 font-size: 1.5rem;
                 margin-bottom: 20px;
             }
-            
+
             .file-input,
             .submit-btn {
                 padding: 12px;
@@ -167,7 +189,12 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="page-container">
+        <div class="header">
+            <h1 class="page-title">Kris & Chilu</h1>
+        </div>
+
+        <div class="container">
         <h1>Compartinos tus fotos y videos</h1>
 
         {% if messages %}
@@ -204,6 +231,7 @@
 
         <div style="text-align: center; margin-top: 20px;">
             <a href="{% url 'gallery' %}" class="gallery-btn">Ver galería de fotos y videos</a>
+        </div>
         </div>
     </div>
 </body>
