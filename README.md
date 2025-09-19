@@ -5,7 +5,7 @@ A simple Django web application that allows anonymous users to upload files via 
 ## Features
 
 - **Simple file upload interface** - Clean, responsive design that works on desktop and mobile
-- **Security features** - CSRF protection, file size limits (200MB), secure file handling
+- **Security features** - CSRF protection, file size limits (500MB), secure file handling
 - **Anonymous uploads** - No user authentication required
 - **Success feedback** - Visual confirmation when files are uploaded successfully
 
@@ -78,7 +78,7 @@ share-with-us/
 ### `fileupload/settings.py`
 
 - Configures the Django project
-- Sets up file upload limits (200MB)
+- Sets up file upload limits (500MB)
 - Configures media file handling
 - Includes security settings with CSRF protection
 
@@ -108,9 +108,9 @@ share-with-us/
 The following settings in `fileupload/settings.py` control file upload behavior:
 
 ```python
-# Maximum file size: 200 MB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 200 * 1024 * 1024
-DATA_UPLOAD_MAX_MEMORY_SIZE = 200 * 1024 * 1024
+# Maximum file size: 500 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 500 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 500 * 1024 * 1024
 
 # File permissions
 FILE_UPLOAD_PERMISSIONS = 0o644
@@ -151,14 +151,14 @@ The application is designed to work seamlessly on mobile devices:
 Edit the values in `fileupload/settings.py`:
 
 ```python
-FILE_UPLOAD_MAX_MEMORY_SIZE = 200 * 1024 * 1024  # 200 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 500 * 1024 * 1024  # 500 MB
 ```
 
 And update the validation in `uploads/forms.py`:
 
 ```python
-if file.size > 200 * 1024 * 1024:  # 200 MB limit
-    raise forms.ValidationError('File size cannot exceed 200 MB.')
+if file.size > 500 * 1024 * 1024:  # 500 MB limit
+    raise forms.ValidationError('File size cannot exceed 500 MB.')
 ```
 
 ### Modifying the Interface
@@ -327,7 +327,7 @@ sudo systemctl start fileupload
 - Files are stored with private ACL by default
 - Pre-signed URLs are generated for file access with 1-hour expiration
 - CSRF protection is enabled
-- File size limits are enforced (200MB)
+- File size limits are enforced (500MB)
 
 ### Troubleshooting AWS Deployment
 
