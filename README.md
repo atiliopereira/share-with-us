@@ -5,7 +5,7 @@ A simple Django web application that allows anonymous users to upload files via 
 ## Features
 
 - **Simple file upload interface** - Clean, responsive design that works on desktop and mobile
-- **Security features** - CSRF protection, file size limits (10MB), secure file handling
+- **Security features** - CSRF protection, file size limits (200MB), secure file handling
 - **Anonymous uploads** - No user authentication required
 - **Success feedback** - Visual confirmation when files are uploaded successfully
 
@@ -40,6 +40,7 @@ uv run python manage.py runserver
 ### 4. Access the Application
 
 Open your web browser and navigate to:
+
 ```
 http://127.0.0.1:8000/
 ```
@@ -75,22 +76,26 @@ share-with-us/
 ## Key Files Overview
 
 ### `fileupload/settings.py`
+
 - Configures the Django project
-- Sets up file upload limits (10MB)
+- Sets up file upload limits (200MB)
 - Configures media file handling
 - Includes security settings with CSRF protection
 
 ### `uploads/forms.py`
+
 - Defines the file upload form
 - Includes file size validation
 - Sets up proper HTML attributes for mobile compatibility
 
 ### `uploads/views.py`
+
 - Handles file upload processing
 - Manages file saving to the media directory
 - Provides user feedback via Django messages
 
 ### `uploads/templates/uploads/upload.html`
+
 - Responsive HTML template
 - Mobile-first design with CSS Grid/Flexbox
 - Success/error message display
@@ -103,9 +108,9 @@ share-with-us/
 The following settings in `fileupload/settings.py` control file upload behavior:
 
 ```python
-# Maximum file size: 10 MB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+# Maximum file size: 200 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 200 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 200 * 1024 * 1024
 
 # File permissions
 FILE_UPLOAD_PERMISSIONS = 0o644
@@ -146,19 +151,20 @@ The application is designed to work seamlessly on mobile devices:
 Edit the values in `fileupload/settings.py`:
 
 ```python
-FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # 20 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 200 * 1024 * 1024  # 200 MB
 ```
 
 And update the validation in `uploads/forms.py`:
 
 ```python
-if file.size > 20 * 1024 * 1024:  # 20 MB limit
-    raise forms.ValidationError('File size cannot exceed 20 MB.')
+if file.size > 200 * 1024 * 1024:  # 200 MB limit
+    raise forms.ValidationError('File size cannot exceed 200 MB.')
 ```
 
 ### Modifying the Interface
 
 Edit `uploads/templates/uploads/upload.html` to customize:
+
 - Colors and styling
 - Layout and typography
 - Success/error messages
@@ -194,25 +200,19 @@ Create an IAM user with the following policy:
 
 ```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:GetObject",
-                "s3:PutObject",
-                "s3:DeleteObject"
-            ],
-            "Resource": "arn:aws:s3:::your-bucket-name/*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:ListBucket"
-            ],
-            "Resource": "arn:aws:s3:::your-bucket-name"
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+      "Resource": "arn:aws:s3:::your-bucket-name/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": "arn:aws:s3:::your-bucket-name"
+    }
+  ]
 }
 ```
 
@@ -309,12 +309,14 @@ sudo systemctl start fileupload
 
 ```json
 [
-    {
-        "AllowedHeaders": ["*"],
-        "AllowedMethods": ["GET", "POST", "PUT"],
-        "AllowedOrigins": ["https://ec2-18-221-73-203.us-east-2.compute.amazonaws.com"],
-        "ExposeHeaders": []
-    }
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "POST", "PUT"],
+    "AllowedOrigins": [
+      "https://ec2-18-221-73-203.us-east-2.compute.amazonaws.com"
+    ],
+    "ExposeHeaders": []
+  }
 ]
 ```
 
@@ -325,7 +327,7 @@ sudo systemctl start fileupload
 - Files are stored with private ACL by default
 - Pre-signed URLs are generated for file access with 1-hour expiration
 - CSRF protection is enabled
-- File size limits are enforced (10MB)
+- File size limits are enforced (200MB)
 
 ### Troubleshooting AWS Deployment
 
@@ -345,12 +347,14 @@ sudo systemctl start fileupload
 ### Development vs Production
 
 **Development** (Local):
+
 - `USE_S3=False` - Files stored locally
 - `DEBUG=True`
 - `ALLOWED_HOSTS=localhost,127.0.0.1`
 
 **Production** (EC2 + S3):
+
 - `USE_S3=True` - Files stored in S3
-- `DEBUG=False`  
+- `DEBUG=False`
 - `ALLOWED_HOSTS=ec2-18-221-73-203.us-east-2.compute.amazonaws.com`
 - Use Gunicorn + Nginx for serving

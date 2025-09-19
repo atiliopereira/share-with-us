@@ -9,12 +9,12 @@ class FileUploadForm(forms.Form):
                 "accept": "*/*",
             }
         ),
-        help_text="Tamaño Max: 10 MB",
+        help_text="Tamaño Max: 200 MB",
     )
 
     def clean_file(self):
         file = self.cleaned_data.get("file")
         if file:
-            if file.size > 10 * 1024 * 1024:  # 10 MB limit
-                raise forms.ValidationError("File size cannot exceed 10 MB.")
+            if file.size > 200 * 1024 * 1024:  # 200 MB limit
+                raise forms.ValidationError("File size cannot exceed 200 MB.")
         return file
