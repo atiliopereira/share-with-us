@@ -39,7 +39,9 @@ def gallery(request):
             response = s3.list_objects_v2(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Prefix='media/')
 
             if 'Contents' in response:
-                for obj in response['Contents']:
+                # Sort by LastModified in descending order (newest first)
+                sorted_objects = sorted(response['Contents'], key=lambda x: x['LastModified'], reverse=True)
+                for obj in sorted_objects:
                     # Skip test files and get filename from full path
                     filename = obj['Key'].replace('media/', '')
                     if filename and not filename.startswith('test'):
@@ -49,11 +51,19 @@ def gallery(request):
         else:
             # Local storage fallback
             dirs, files = default_storage.listdir('media')
+            files_with_time = []
             for file in files:
                 if not file.startswith('test'):
                     file_path = f'media/{file}'
+                    # Get file modification time
+                    file_full_path = default_storage.path(file_path)
+                    mod_time = os.path.getmtime(file_full_path)
                     file_url = default_storage.url(file_path)
-                    file_urls.append({'name': file, 'url': file_url})
+                    files_with_time.append({'name': file, 'url': file_url, 'mod_time': mod_time})
+
+            # Sort by modification time in descending order (newest first)
+            files_with_time.sort(key=lambda x: x['mod_time'], reverse=True)
+            file_urls = [{'name': f['name'], 'url': f['url']} for f in files_with_time]
     except Exception as e:
         print(f"Gallery error: {e}")
         file_urls = []
